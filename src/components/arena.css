@@ -1,0 +1,22 @@
+ol.arena, ol.arena ol {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  display: inline-block;
+}
+
+ol.arena > li > ol {
+  display: flex;
+  margin-bottom: 1px;
+}
+
+ol.arena li.cell {
+  background-color: #DDD;
+  margin-right: 1px;
+  height: 20px;
+  width: 20px;
+}
+
+ol.arena li.cell.active {
+  background-color: #666;
+}

@@ -63,6 +63,12 @@ export default class Tetromino {
     }
   }
 
+  public removeRow(game:Game, row:number) {
+    this.currentConfig = this.configRows
+      .filter((_, index) => index !== row)
+      .join('\n');
+  }
+
   public canMoveDown(game:Game) {
     const a = game.arena.live(game.pieces);
     return (this.y < a.height - this.height) && this.coordinates.reduce((memo, [x,y]) => {
@@ -73,7 +79,7 @@ export default class Tetromino {
 
   public moveDown(game:Game) {
     const {arena} = game;
-    if(this.canMoveDown(game)) {
+    if (this.canMoveDown(game)) {
       this.y = Math.min(arena.height - this.height, this.y + 1);
     }
   }

@@ -22,13 +22,14 @@ class GameContainer extends React.Component<Props, State> {
   };
 
   handleKeydown = (event:KeyboardEvent) => {
-    this.state.game.handleKeydown(event);
+    const { game } = this.state;
+    game.start();
+    game.handleKeydown(event);
     this.frame();
   };
 
   componentDidMount() {
     window.addEventListener('keydown', this.handleKeydown);
-    this.state.game.gravity();
   }
 
   componentWillUnmount() {

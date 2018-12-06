@@ -33,10 +33,10 @@ export default class Arena {
   }
 
   private randomlyFilledRow() {
-    return this.mkRow(() => Math.random() > .5);
+    return this.mkRow((_,i) => i>0 && Math.random() > .5);
   }
 
-  private mkRow(map = (a:any) => !!a) {
+  private mkRow(map = (a:any, i:number) => !!a) {
     return Array(this.width)
       .fill(null)
       .map(map)

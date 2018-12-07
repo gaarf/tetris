@@ -32,6 +32,21 @@ export default class Arena {
     return live;
   }
 
+  public deactivateRow(y:number) {
+    this.cells[y].forEach(cell => {
+      cell.active = false;
+    });
+  }
+
+  public shiftDown(y:number) {
+    for (let i = y-1; i >= 0; i--) {
+      this.cells[i].forEach((cell, x) => {
+        this.cells[i+1][x].active = cell.active;
+        cell.active = false;
+      });
+    }
+  }
+
   private randomlyFilledRow() {
     return this.mkRow((_,i) => i>0 && Math.random() > .5);
   }

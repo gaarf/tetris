@@ -49,7 +49,7 @@ export default class Tetromino {
   }
 
   get coordinates():Coordinates[] {
-    return this.config.split('\n').filter(Boolean)
+    return this.configRows
       .map((line, yPos) => line.split('').map((char, xPos) => {
         return char !== ' ' && [this.x + xPos, this.y + yPos];
       }))
@@ -65,7 +65,7 @@ export default class Tetromino {
 
   public removeRow(game:Game, row:number) {
     this.currentConfig = this.configRows
-      .filter((_, index) => index !== row)
+      .map((line, i) => i === row ? line.replace(/./g, ' ') : line)
       .join('\n');
   }
 

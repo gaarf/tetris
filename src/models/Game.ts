@@ -83,7 +83,6 @@ export default class Game {
       case 'ArrowUp':
         return this.falling.rotateRight(this);
       case 'ArrowDown':
-        event.preventDefault();
         return this.falling.moveDown(this);
       case 'Space':
         return this.landPiece();
@@ -98,6 +97,7 @@ export default class Game {
 
       const { fullRows } = this;
       if (fullRows.length) {
+        console.log('SCORE!', fullRows);
         this.removeRows(fullRows);
       }
 
@@ -112,10 +112,25 @@ export default class Game {
         .forEach(p => {
           p.removeRow(this, ry - p.y);
         });
+      this.arena.deactivateRow(ry);
     });
 
     this.render();
-    this.stop();
+
+    rows.forEach((ry, i) => {
+      setTimeout(() => {
+        this.pieces.forEach(piece => {
+          console.log(piece);
+          if(piece.y+piece.height <= ry) {
+            piece.moveDown(this);
+          }
+        });
+        this.arena.shiftDown(ry);
+        this.render();
+        this.stop();
+      }, this.dropDelay / (i+2));
+    });
+
   }
 
   incrementLevel() {

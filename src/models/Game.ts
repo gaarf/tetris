@@ -3,14 +3,16 @@ import Tetromino, { randomPiece } from './Tetromino';
 
 const QUEUE_SIZE = 5;
 const BASE_DELAY = 1000;
+const POINTS = [100,200,300,800];
+const DROPS_PER_LEVEL = 10;
 
 export default class Game {
-  score = 0;
-  level = 0;
-  arena: Arena = new Arena();
-  pieces: Tetromino[] = [];
-  queue: Tetromino[] = [];
+  public score = 0;
+  public level = 0;
+  public arena: Arena = new Arena();
+  public queue: Tetromino[] = [];
 
+  private drops:number = 0;
   private timeout:number;
 
   constructor(private render:Function) {
@@ -19,7 +21,7 @@ export default class Game {
   }
 
   get dropDelay() {
-    return BASE_DELAY;
+    return BASE_DELAY / Math.log1p(this.level);
   }
   
   get falling() {
@@ -28,10 +30,9 @@ export default class Game {
 
   get fullRows() {
     return this.arena
-      .live(this.pieces)
-      .cells
+      .rows
       .reduce((acc:number[], row, y) => {
-        if (row.every(one => one.active)) {
+        if (row.cells.every(one => one.active)) {
           acc.push(y);
         }
         return acc;
@@ -39,9 +40,7 @@ export default class Game {
   }
 
   get liveArena() {
-    return this.arena.live(
-      this.pieces.concat(this.falling)
-    );
+    return this.arena.live(this.falling);
   }
 
   start() {
@@ -58,12 +57,12 @@ export default class Game {
   gravity = () => {
     window.clearTimeout(this.timeout);
 
-    const { falling } = this;
-    if (falling.canMoveDown(this)) {
-      falling.moveDown(this);
+    const { falling, arena } = this;
+    if (falling.canMoveDown(arena)) {
+      falling.moveDown(arena);
     }
     else {
-      this.landPiece();
+      this.addPiece();
     }
 
     this.render(() => {
@@ -72,69 +71,64 @@ export default class Game {
   };
 
   handleKeydown(event:KeyboardEvent) {
+    const { arena } = this;
     switch(event.code) {
       case 'ArrowLeft':
-        return this.falling.moveLeft(this);
+        return this.falling.moveLeft(arena);
       case 'ArrowRight':
-        return this.falling.moveRight(this);
+        return this.falling.moveRight(arena);
       case 'KeyQ':
-        return this.falling.rotateLeft(this);
+        return this.falling.rotateLeft(arena);
       case 'KeyW':
       case 'ArrowUp':
-        return this.falling.rotateRight(this);
+        return this.falling.rotateRight(arena);
       case 'ArrowDown':
-        return this.falling.moveDown(this);
+        return this.falling.moveDown(arena);
       case 'Space':
-        return this.landPiece();
+        return this.addPiece();
     }
   }
 
-  landPiece() {
-    if(this.falling) {
-      const t = this.queue.shift() as Tetromino;
-      t.land(this);
-      this.pieces.push(t);
+  addPiece() {
+    this.arena.add(
+      this.queue.shift() as Tetromino
+    );
+    this.drops++;
+    this.topUpQueue();
 
-      const { fullRows } = this;
-      if (fullRows.length) {
-        console.log('SCORE!', fullRows);
-        this.removeRows(fullRows);
+    const { fullRows } = this;
+    if (fullRows.length) {
+      this.removeRows(fullRows);
+      this.score += POINTS[fullRows.length - 1];
+
+
+      if(this.drops >= DROPS_PER_LEVEL) {
+        this.incrementLevel();
       }
-
-      this.topUpQueue();
     }
   }
 
-  removeRows(rows:number[]) {
-    rows.forEach(ry => {
-      this.pieces
-        .filter(p => (ry >= p.y) && (ry <= p.y + p.height))
-        .forEach(p => {
-          p.removeRow(this, ry - p.y);
-        });
-      this.arena.deactivateRow(ry);
+  removeRows(ys:number[]) {
+    ys.forEach(y => {
+      this.arena.deactivateRow(y);
     });
-
     this.render();
 
-    rows.forEach((ry, i) => {
-      setTimeout(() => {
-        this.pieces.forEach(piece => {
-          console.log(piece);
-          if(piece.y+piece.height <= ry) {
-            piece.moveDown(this);
-          }
-        });
-        this.arena.shiftDown(ry);
-        this.render();
-        this.stop();
-      }, this.dropDelay / (i+2));
-    });
-
+    const y = Math.max(...ys);
+    const d = this.dropDelay / ys.length + 2;
+    const f = () => {
+      if(this.arena.shiftDown(y)) {
+        console.log('can shiftDown more...');
+        setTimeout(f, d);
+      }
+      this.render();
+    };
+    setTimeout(f, d);
   }
 
   incrementLevel() {
-    this.level += 5;
+    this.level += 1;
+    this.drops = 0;
     this.arena.init( this.level );
   }
 

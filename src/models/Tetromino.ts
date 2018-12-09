@@ -1,6 +1,6 @@
 import pieces, { types, Type } from './pieces';
 import { Rotation, RotationValue } from './Rotation';
-import Game from './Game';
+import Arena from './Arena';
 
 export type Coordinates = [ number, number ];
 
@@ -56,63 +56,60 @@ export default class Tetromino {
       .reduce((memo, c) => memo.concat(c.filter(Boolean)), []) as Coordinates[];
   }
 
-  public land(game:Game) {
+  public land(arena:Arena) {
+    console.log('landing', this);
     this.currentConfig = this.config; // freeze rotation
-    while (this.canMoveDown(game)) {
-      this.moveDown(game);
+    while (this.canMoveDown(arena)) {
+      this.moveDown(arena);
     }
   }
 
-  public removeRow(game:Game, row:number) {
+  public removeRow(arena:Arena, row:number) {
     this.currentConfig = this.configRows
       .map((line, i) => i === row ? line.replace(/./g, ' ') : line)
       .join('\n');
   }
 
-  public canMoveDown(game:Game) {
-    const a = game.arena.live(game.pieces);
-    return (this.y < a.height - this.height) && this.coordinates.reduce((memo, [x,y]) => {
-      const rowBelow = a.cells[y+1];
-      return memo && !!rowBelow && !rowBelow[x].active;
+  public canMoveDown(arena:Arena) {
+    return (this.y < arena.height - this.height) && this.coordinates.reduce((memo, [x,y]) => {
+      const rowBelow = arena.rows[y+1];
+      return memo && !!rowBelow && !rowBelow.cells[x].active;
     }, true);
   }
 
-  public moveDown(game:Game) {
-    const {arena} = game;
-    if (this.canMoveDown(game)) {
+  public moveDown(arena:Arena) {
+    if (this.canMoveDown(arena)) {
       this.y = Math.min(arena.height - this.height, this.y + 1);
     }
   }
 
-  public moveRight(game:Game) {
-    const {arena} = game;
+  public moveRight(arena:Arena) {
     this.x = Math.min(arena.width - this.width, this.x + 1);
   }
 
-  public moveLeft(game?:Game) {
+  public moveLeft(arena?:Arena) {
     this.x = Math.max(0, this.x - 1);
   }
 
-  public rotateRight(game:Game) {
-    this.rotate(Rotation.Right, game);
+  public rotateRight(arena:Arena) {
+    this.rotate(Rotation.Right, arena);
   }
 
-  public rotateLeft(game:Game) {
-    this.rotate(Rotation.Left, game);
+  public rotateLeft(arena:Arena) {
+    this.rotate(Rotation.Left, arena);
   }
 
-  protected rotate(deg:number, game:Game) {
+  protected rotate(deg:number, arena:Arena) {
     if (this.currentConfig) {
       throw new Error("Cannot rotate a frozen piece");
     }
     this.rotation = (this.rotation + deg) % Rotation.Full;
 
-    const {arena} = game;
     if (this.x > arena.width-this.width) {
-      this.moveLeft(game);
+      this.moveLeft(arena);
     }
     if (this.x < 0) {
-      this.moveRight(game);
+      this.moveRight(arena);
     }
 
   }

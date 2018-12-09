@@ -38,7 +38,12 @@ class GameContainer extends React.Component<Props, State> {
 
   public render() {
     const { game, tick } = this.state;
-    return <GameComponent game={game} tick={tick} />;
+    return (
+      <>
+        <GameComponent game={game} tick={tick} />
+        <audio src="tetris-gameboy-02.mp3" autoPlay loop />
+      </>
+    );;
   }
 }
 

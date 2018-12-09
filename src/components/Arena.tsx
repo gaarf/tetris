@@ -7,16 +7,16 @@ export type Props = {
 };
 
 export default function ArenaComponent (props: Props) {
-  const { arena: { cells } } = props;
+  const { arena: { rows } } = props;
 
   return (
     <ol className="arena">
-      {cells.map((row, y) => (
-        <li key={`row-${y}`}>
+      {rows.map((row, y) => (
+        <li key={y}>
           <ol>
-            {row.map((cell, x) => (
+            {row.cells.map((cell, x) => (
               <li
-                key={`cell-${y}-${x}`}
+                key={x}
                 className={cell.className}
                 style={{backgroundColor: cell.color}}
               />

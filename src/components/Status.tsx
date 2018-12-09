@@ -7,17 +7,16 @@ export type Props = {
 };
 
 export default function Status (props: Props) {
-  const { game, tick } = props;
+  const { game: { level, score } } = props;
 
   return (
     <div>
       <p>
-        Level: <mark>{game.level}</mark>
+        Level: <mark>{level}</mark>
       </p>
       <p>
-        Score: <mark>{game.score}</mark>
+        Score: <mark>{score}</mark>
       </p>
-      <samp>{tick}</samp>
     </div>
 );
 }

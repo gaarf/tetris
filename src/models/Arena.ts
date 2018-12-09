@@ -1,8 +1,8 @@
-import Cell from './Cell';
+import Row from './Row';
 import Tetromino from './Tetromino';
 
 export default class Arena {
-  public cells: Cell[][];
+  public rows: Row[];
 
   constructor(
     public height:number = 20,
@@ -11,50 +11,53 @@ export default class Arena {
 
   public init(level:number = 1) {
     console.log('init', level, this);
-    this.cells = Array(this.height).fill(this.mkRow());
+    const { width, height } = this;
+    this.rows = Array(height)
+      .fill(null)
+      .map(() => new Row(width));
 
     for (let i = 1; i < level; i++) {
-      this.cells[this.height-i] = this.randomlyFilledRow();
+      this.rows[this.height-i].randomize();
     }
   }
 
-  public live(pieces: Tetromino[]) {
-    const live = new Arena(
-      this.height,
-      this.width,
-    );
-    live.cells = this.cells.map(
-      row => row.map( cell => new Cell(cell.active) )
-    );
-    pieces.forEach(c => c.coordinates.forEach(([x, y]) => {
-      live.cells[y][x].activate(c.color);
-    }));
+  public add(piece: Tetromino) {
+    piece.land(this);
+    piece.coordinates.forEach(([x, y]) => {
+      this.rows[y].cells[x].activate(piece.color);
+    });
+  }
+
+  public live(piece: Tetromino) {
+    const live = new Arena(this.height, this.width);
+    live.rows = this.rows.map(row => row.clone());
+    piece.coordinates.forEach(([x, y]) => {
+      live.rows[y].cells[x].activate(piece.color);
+    });
     return live;
   }
 
   public deactivateRow(y:number) {
-    this.cells[y].forEach(cell => {
+    this.rows[y].cells.forEach(cell => {
       cell.active = false;
     });
   }
 
-  public shiftDown(y:number) {
+  public shiftDown(y:number):Boolean {
     for (let i = y-1; i >= 0; i--) {
-      this.cells[i].forEach((cell, x) => {
-        this.cells[i+1][x].active = cell.active;
-        cell.active = false;
+      this.rows[i].cells.forEach((cell, x) => {
+        const below = this.rows[i+1].cells[x];
+        if(cell.active && !below.active) {
+          below.activate(cell.color);
+          cell.active = false;
+        }
       });
     }
-  }
 
-  private randomlyFilledRow() {
-    return this.mkRow((_,i) => i>0 && Math.random() > .5);
-  }
-
-  private mkRow(map = (a:any, i:number) => !!a) {
-    return Array(this.width)
-      .fill(null)
-      .map(map)
-      .map(active => new Cell(active));
+    return !this.rows
+      .slice(0, y)
+      .every(({cells}, j) => cells.every(
+        (cell, x) => !cell.active || this.rows[j+1].cells[x].active
+      ));
   }
 }

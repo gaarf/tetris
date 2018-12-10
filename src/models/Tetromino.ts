@@ -71,10 +71,10 @@ export default class Tetromino {
   }
 
   public canMoveDown(arena:Arena) {
-    return (this.y < arena.height - this.height) && this.coordinates.reduce((memo, [x,y]) => {
+    return (this.y < arena.height - this.height) && this.coordinates.every(([x,y]) => {
       const rowBelow = arena.rows[y+1];
-      return memo && !!rowBelow && !rowBelow.cells[x].active;
-    }, true);
+      return !!rowBelow && !rowBelow.cells[x].active;
+    });
   }
 
   public moveDown(arena:Arena) {
@@ -83,12 +83,29 @@ export default class Tetromino {
     }
   }
 
-  public moveRight(arena:Arena) {
-    this.x = Math.min(arena.width - this.width, this.x + 1);
+
+  public canMoveRight(arena:Arena) {
+    return (this.x < arena.width - this.width) && this.coordinates.every(([x,y]) => {
+      return !arena.rows[y].cells[x+1].active;
+    });
   }
 
-  public moveLeft(arena?:Arena) {
-    this.x = Math.max(0, this.x - 1);
+  public moveRight(arena:Arena) {
+    if (this.canMoveRight(arena)) {
+      this.x = Math.min(arena.width - this.width, this.x + 1);
+    }
+  }
+
+  public canMoveLeft(arena:Arena) {
+    return (this.x > 0) && this.coordinates.every(([x,y]) => {
+      return !arena.rows[y].cells[x-1].active;
+    });
+  }
+
+  public moveLeft(arena:Arena) {
+    if (this.canMoveLeft(arena)) {
+      this.x = Math.max(0, this.x - 1);
+    }
   }
 
   public rotateRight(arena:Arena) {

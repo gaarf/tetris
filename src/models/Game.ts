@@ -8,7 +8,7 @@ const DROPS_PER_LEVEL = 10;
 
 export default class Game {
   public score = 0;
-  public level = 0;
+  public level = 1;
   public arena: Arena = new Arena();
   public queue: Tetromino[] = [];
 
@@ -17,7 +17,7 @@ export default class Game {
 
   constructor(private render:Function) {
     this.topUpQueue();
-    this.incrementLevel();
+    this.arena.init( this.level );
   }
 
   get dropDelay() {
@@ -129,7 +129,6 @@ export default class Game {
   incrementLevel() {
     this.level += 1;
     this.drops = 0;
-    this.arena.init( this.level );
   }
 
   topUpQueue() {

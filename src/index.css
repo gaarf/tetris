@@ -7,10 +7,9 @@ body {
   height: 100vh;
 }
 
-#root {
+#game {
   font-family: sans-serif;
-  background-color: #EEE;
-  padding: 1em;
-  border-radius: 1em;
+  margin-bottom: 1em;
+  text-align: center;
 }
 

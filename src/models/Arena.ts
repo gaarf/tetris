@@ -16,7 +16,8 @@ export default class Arena {
       .fill(null)
       .map(() => new Row(width));
 
-    for (let i = 1; i < level; i++) {
+    const r = Math.min(this.height/2, level);
+    for (let i = 1; i < r; i++) {
       this.rows[this.height-i].randomize();
     }
   }

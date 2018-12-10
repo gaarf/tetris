@@ -8,7 +8,7 @@ const DROPS_PER_LEVEL = 10;
 
 export default class Game {
   public score = 0;
-  public level = 1;
+  public level = 5;
   public arena: Arena = new Arena();
   public queue: Tetromino[] = [];
 
@@ -62,7 +62,13 @@ export default class Game {
       falling.moveDown(arena);
     }
     else {
-      this.addPiece();
+      if(falling.y === 0) {
+        this.arena.init(this.level);
+        this.stop();
+      }
+      else {
+        this.addPiece();
+      }
     }
 
     this.render(() => {
@@ -101,7 +107,6 @@ export default class Game {
       this.removeRows(fullRows);
       this.score += POINTS[fullRows.length - 1];
 
-
       if(this.drops >= DROPS_PER_LEVEL) {
         this.incrementLevel();
       }
@@ -118,7 +123,6 @@ export default class Game {
     const d = this.dropDelay / ys.length + 2;
     const f = () => {
       if(this.arena.shiftDown(y)) {
-        console.log('can shiftDown more...');
         setTimeout(f, d);
       }
       this.render();
@@ -132,7 +136,7 @@ export default class Game {
   }
 
   topUpQueue() {
-    while(this.queue.length < QUEUE_SIZE) {
+    while (this.queue.length < QUEUE_SIZE) {
       const p = randomPiece();
       p.x = Math.ceil((this.arena.width / 2) - (p.width / 2));
       this.queue.push(p);

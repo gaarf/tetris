@@ -18,7 +18,7 @@ export default class Tetromino {
   public y:number = 0;
 
   constructor(
-    private type:Type = 'I',
+    public type:Type = 'I',
     public rotation:RotationValue = Rotation.None,
   ) {}
 

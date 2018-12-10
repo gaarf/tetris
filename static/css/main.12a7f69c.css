@@ -1,0 +1,2 @@
+ol.arena,ol.arena ol{padding:0;margin:0;list-style-type:none;display:inline-block}ol.arena>li>ol{display:-ms-flexbox;display:flex;margin-bottom:1px}ol.arena li.cell{background-color:#ddd;margin-right:1px;height:20px;width:20px}ol.arena li.cell.active{background-color:#666}body{margin:0;padding:0;display:-ms-flexbox;display:flex;-ms-flex-align:center;align-items:center;-ms-flex-pack:center;justify-content:center;height:100vh}#game{font-family:sans-serif;margin-bottom:1em;text-align:center}
+/*# sourceMappingURL=main.12a7f69c.css.map*/
